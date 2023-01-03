@@ -207,6 +207,9 @@ class MegaListen:
             mega_password (str): mega密碼
             test (bool, optional): 是否為測試. Defaults to False.
         """
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+            
         self.dir_path = dir_path
         self.files = []
 

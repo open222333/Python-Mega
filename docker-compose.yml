@@ -1,0 +1,11 @@
+version: '3'
+services:
+  mega_backup:
+    build: .
+    container_name: mega_backup
+    hostname: mega_backup
+    env_file: mega_backup.env
+    restart: always
+    volumes:
+      - ./:/usr/src/app
+    command: bash -c 'python -u main.py'

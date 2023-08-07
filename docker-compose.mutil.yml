@@ -1,0 +1,30 @@
+version: '3'
+services:
+  mega_backup:
+    build: .
+    image: mega_backup
+    container_name: mega_backup
+    hostname: mega_backup
+    env_file: mega.env
+    restart: always
+    volumes:
+      - .:/usr/src/app
+    command: bash -c 'python -u mega_sql_script.py -u 0 -s 2 -l 1'
+  mega_backup_split:
+    image: mega_backup
+    container_name: mega_backup_split
+    hostname: mega_backup_split
+    env_file: mega.env
+    restart: always
+    volumes:
+      - .:/usr/src/app
+    command: bash -c 'python -u mega_sql_script.py -l 0'
+  mega_backup_check_expired:
+    image: mega_backup
+    container_name: mega_backup_check_expired
+    hostname: mega_backup_check_expired
+    env_file: mega.env
+    restart: always
+    volumes:
+      - .:/usr/src/app
+    command: bash -c 'python -u mega_sql_script.py -l 2'

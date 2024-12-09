@@ -1,7 +1,12 @@
 from src.mega_backup_mutli import MegaListen
 from src.logger import Log
+from src import LOG_LEVEL
 import argparse
 import os
+
+logger = Log('main-mega_sql_script')
+logger.set_level(LOG_LEVEL)
+logger.set_msg_handler()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-u', '--mega_upload_id', type=int, default=0)

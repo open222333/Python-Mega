@@ -1,5 +1,6 @@
 from time import time, sleep
 from mega import Mega
+from src.logger import Log
 import os
 
 
@@ -7,7 +8,7 @@ class MegaBackupFile:
     """上傳檔案至mega
     """
 
-    def __init__(self, file_path: str, mega_folder: str = None, test=False) -> None:
+    def __init__(self, file_path: str, mega_folder: str = None, test=False, log_level='DEBUG') -> None:
         """_summary_
 
         Args:
@@ -15,6 +16,10 @@ class MegaBackupFile:
             mega_folder (str): 上傳的資料夾名稱
         """
         self.file_path = file_path
+
+        self.logger = Log('MegaBackupFile')
+        self.logger.set_level(log_level)
+        self.logger.set_msg_handler()
 
         # 紀錄分割檔案
         self.split_files = []
@@ -69,14 +74,6 @@ class MegaBackupFile:
         msg += f"{int(seconds)} 秒"
         return msg
 
-    def __print_msg(self, msg: str):
-        """顯示訊息
-
-        Args:
-            msg (str): 訊息內容
-        """
-        print(f'=== {msg} ===')
-
     def __split_file(self, path: str, chunk_size: int = 500000000, filename: str = None):
         """分割檔案
 
@@ -91,7 +88,7 @@ class MegaBackupFile:
             filename = os.path.basename(path)
         file_dir = os.path.dirname(path)
 
-        self.__print_msg(f'分割 {filename} 開始')
+        self.logger.info(f'分割 {filename} 開始')
 
         with open(path, 'rb') as f:
             chunk = f.read(chunk_size)
@@ -105,7 +102,7 @@ class MegaBackupFile:
                 # 紀錄分割檔位置
                 self.split_files.append(split_file)
 
-        self.__print_msg(f'分割 {filename} 結束')
+        self.logger.info(f'分割 {filename} 結束')
 
     def __cat_files(self, path: str, filename: str = None):
         """合併檔案
@@ -118,13 +115,13 @@ class MegaBackupFile:
             filename = os.path.basename(path)
         file_dir = os.path.dirname(path)
 
-        self.__print_msg(f'合併 {filename} 開始')
+        self.logger.info(f'合併 {filename} 開始')
 
         command = f'cat {file_dir}/{filename}* >> {file_dir}/{filename}'
         print(command)
         os.system(command)
 
-        self.__print_msg(f'合併 {filename} 結束')
+        self.logger.info(f'合併 {filename} 結束')
 
     def __upload_to_mega(self, path: str):
         """上傳至mega
@@ -139,7 +136,7 @@ class MegaBackupFile:
         tar_size = round(os.path.getsize(self.file_path) / float(1000 * 1000), 2)
         filename = os.path.basename(path)
 
-        self.__print_msg(f'上傳資料 {filename} 至 {self.mega_folder}, 檔案大小 {tar_size} MB')
+        self.logger.info(f'上傳資料 {filename} 至 {self.mega_folder}, 檔案大小 {tar_size} MB')
 
         upload_start_time = time()
 
@@ -153,7 +150,7 @@ class MegaBackupFile:
         upload_end_time = time()
 
         take_time = self.__get_time_str(round(upload_end_time - upload_start_time, 0))
-        self.__print_msg(f'上傳資料 {filename} 至 {self.mega_folder} 完成, 共花費 {take_time}')
+        self.logger.info(f'上傳資料 {filename} 至 {self.mega_folder} 完成, 共花費 {take_time}')
 
         if not self.test:
             return mega_info
@@ -165,9 +162,9 @@ class MegaBackupFile:
             path (str): 檔案路徑
         """
         filename = os.path.basename(path)
-        self.__print_msg(f'刪除 {filename} 開始')
+        self.logger.info(f'刪除 {filename} 開始')
         os.remove(path)
-        self.__print_msg(f'刪除 {filename} 結束')
+        self.logger.info(f'刪除 {filename} 結束')
 
     def run(self):
         """執行
